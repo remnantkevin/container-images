@@ -19,6 +19,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -36,8 +37,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.6.1
         with:
+          # Handles 'latest' tag
           flavor: |
-            # Handle latest tag
             latest=true
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -58,6 +59,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2.2.0
         with:
